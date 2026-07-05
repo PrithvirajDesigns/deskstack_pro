@@ -1734,7 +1734,7 @@
         function openModal(html) {
             document.getElementById('modalRoot').innerHTML = `<div class="modal-overlay" data-action="close-modal">${html}</div>`;
             document.getElementById('modalRoot').querySelector('.modal').addEventListener('click', e => {
-                if (!e.target.closest('[data-action="close-modal"]')) e.stopPropagation();
+                if (!e.target.closest('.close-x')) e.stopPropagation();
             });
         }
         function closeModal() { document.getElementById('modalRoot').innerHTML = ''; pendingUpload = null; }
