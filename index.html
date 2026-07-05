@@ -638,6 +638,30 @@
             object-fit: cover;
         }
 
+        .ig-link {
+            position: absolute;
+            left: 12px;
+            bottom: 12px;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 12px;
+            border-radius: 20px;
+            background: rgba(23, 24, 26, 0.72);
+            backdrop-filter: blur(4px);
+            color: #fff;
+            font-size: 12.5px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            transition: background .15s, transform .15s;
+        }
+
+        .ig-link:hover {
+            background: var(--accent);
+            transform: translateY(-1px);
+        }
+
         .detail-info {
             flex: 1 1 340px;
             min-width: 300px;
@@ -1193,6 +1217,8 @@
             pin: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M8 3h8l-1 6 3 3v2H6v-2l3-3-1-6z"/></svg>`,
             pinFill: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1"><path d="M12 17v5h-1v-5H8v-2l3-3-1-6h4l-1 6 3 3v2h-3z"/></svg>`,
             reply: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17l-6-6 6-6"/><path d="M3 11h11a6 6 0 0 1 6 6v2"/></svg>`,
+            instagram: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>`,
+            link: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.4l2-2a5 5 0 0 0-7-7l-1.2 1.2"/><path d="M14 11a5 5 0 0 0-7.5-.4l-2 2a5 5 0 0 0 7 7l1.1-1.2"/></svg>`,
         };
         const icon = (name, cls = '') => ICONS[name] ? ICONS[name].replace('<svg ', `<svg class="${cls}" `) : '';
 
@@ -1585,10 +1611,12 @@
             const mediaInner = item.media
                 ? (item.type === 'video' ? `<video src="${item.media}" controls style="width:100%;"></video>` : `<img src="${item.media}" alt="">`)
                 : `<div style="opacity:.55;">${icon(item.type === 'video' ? 'film' : 'image')}</div>`;
+            const igUrl = item.link || `https://instagram.com/${a.handle}`;
+            const igBtn = `<a href="${igUrl}" target="_blank" rel="noopener noreferrer" class="ig-link">${icon('instagram')}View on Instagram</a>`;
             return `
     <a href="#" class="back-link" data-action="go" data-view="feed">${icon('chevLeft')}Back to feed</a>
     <div class="detail">
-      <div class="detail-media" style="background:${color};">${mediaInner}</div>
+      <div class="detail-media" style="background:${color};">${mediaInner}${igBtn}</div>
       <div class="detail-info">
         <div class="tag-cloud">${item.tags.map(t => `<a href="#" class="tag-pill" data-action="go" data-view="tag" data-id="${t}"><span class="dot" style="background:${catColor(t)}"></span>${t}</a>`).join('')}</div>
         <h1 style="font-size:24px; margin-top:10px;">${item.title}</h1>
@@ -1743,6 +1771,10 @@
           </div>
           <div class="chip-select" id="chipSelect">${chips}</div>
           <div id="noTagMatch" class="side-empty" style="display:none; padding-left:0;">No tags match your search.</div>
+        </div>
+        <div class="field">
+          <label>External link (optional)</label>
+          <input type="text" name="link" placeholder="e.g. https://www.instagram.com/..." required>
         </div>
         <div class="field">
           <label>Description (optional)</label>
@@ -1989,6 +2021,7 @@
                 const title = data.get('title');
                 const price = Number(data.get('price')) || 0;
                 const desc = data.get('desc');
+                const link = data.get('link');
                 const chosenTags = [...document.querySelectorAll('#chipSelect .chip.on')].map(c => c.dataset.chip);
                 if (!title || !title.trim()) { toast('Give your item a title first'); return; }
                 if (chosenTags.length === 0) { toast('Pick at least one tag'); return; }
@@ -2004,7 +2037,8 @@
                     likes: 0,
                     likedByMe: false,
                     comments: [],
-                    desc: desc || ''
+                    desc: desc || '',
+                    link: link && link.trim() ? link.trim() : ''
                 };
                 ITEMS.unshift(item);
                 closeModal();
