@@ -1,0 +1,2022 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deskstack</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --paper: #F3F1EC;
+            --paper-raised: #FFFFFF;
+            --ink: #17181A;
+            --ink-soft: #6B6659;
+            --line: #E1DDD2;
+            --line-strong: #CFC9BA;
+            --accent: #C97A2B;
+            --accent-soft: #F0DCC2;
+            --blue: #2B3A4A;
+            --moss: #4F6B4C;
+            --danger: #B3462C;
+            --radius: 10px;
+            --font-display: 'Manrope', sans-serif;
+            --font-body: 'Manrope', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--paper);
+            background-image: radial-gradient(var(--line-strong) 1.2px, transparent 1.2px);
+            background-size: 22px 22px;
+            background-attachment: fixed;
+            color: var(--ink);
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: var(--font-display);
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        p {
+            margin: 0;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        ::selection {
+            background: var(--accent-soft);
+        }
+
+        .mono {
+            font-family: var(--font-mono);
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        textarea:focus-visible,
+        [tabindex]:focus-visible,
+        a:focus-visible {
+            outline: 2px solid var(--blue);
+            outline-offset: 2px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.001ms !important;
+                transition-duration: 0.001ms !important;
+            }
+        }
+
+        /* ---------- layout shell ---------- */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 20px;
+            background: rgba(243, 241, 236, 0.88);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 19px;
+            color: var(--ink);
+            white-space: nowrap;
+        }
+
+        .logo .mark {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            background: var(--ink);
+            color: var(--paper);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .search-wrap {
+            flex: 1;
+            max-width: 480px;
+            position: relative;
+        }
+
+        .search-wrap input {
+            width: 100%;
+            padding: 9px 12px 9px 36px;
+            border-radius: 20px;
+            border: 1px solid var(--line-strong);
+            background: var(--paper-raised);
+            font-size: 14px;
+            color: var(--ink);
+        }
+
+        .search-wrap svg {
+            position: absolute;
+            left: 11px;
+            top: 9px;
+            color: var(--ink-soft);
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 1px solid transparent;
+            font-size: 13.5px;
+            font-weight: 600;
+            background: transparent;
+            color: var(--ink);
+            transition: background .15s, border-color .15s, color .15s;
+        }
+
+        .btn-primary {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent);
+        }
+
+        .btn-outline {
+            border-color: var(--line-strong);
+            background: var(--paper-raised);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--ink);
+        }
+
+        .btn-ghost:hover {
+            background: var(--line);
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12.5px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            font-family: var(--font-display);
+            flex-shrink: 0;
+        }
+
+        .avatar.sm {
+            width: 24px;
+            height: 24px;
+            font-size: 11px;
+        }
+
+        .avatar.lg {
+            width: 64px;
+            height: 64px;
+            font-size: 22px;
+        }
+
+        .shell {
+            display: flex;
+            align-items: flex-start;
+            max-width: 1360px;
+            margin: 0 auto;
+        }
+
+        .sidebar {
+            width: 230px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 65px;
+            height: calc(100vh - 65px);
+            overflow-y: auto;
+            padding: 20px 12px 40px;
+        }
+
+        .side-section {
+            margin-bottom: 22px;
+        }
+
+        .side-label {
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            padding: 0 10px 8px;
+        }
+
+        .side-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ink);
+            margin-bottom: 2px;
+        }
+
+        .side-link:hover {
+            background: var(--line);
+        }
+
+        .side-link.active {
+            background: var(--paper-raised);
+            box-shadow: inset 0 0 0 1px var(--line-strong);
+            font-weight: 600;
+        }
+
+        .side-link svg {
+            flex-shrink: 0;
+            color: var(--ink-soft);
+        }
+
+        .side-link.active svg {
+            color: var(--accent);
+        }
+
+        .tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 11px;
+            margin: 0 6px 6px 0;
+            border-radius: 20px;
+            background: var(--paper-raised);
+            border: 1px solid var(--line-strong);
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        .tag-pill:hover {
+            border-color: var(--ink);
+            background: var(--line);
+        }
+
+        .tag-pill .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 0 8px;
+        }
+
+        .people-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .people-row:hover {
+            background: var(--line);
+        }
+
+        .people-row span.h {
+            color: var(--ink-soft);
+            font-weight: 400;
+            font-size: 11.5px;
+        }
+
+        .community-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 500;
+        }
+
+        .community-row:hover {
+            background: var(--line);
+        }
+
+        .community-row .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .community-row .cname {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .pin-btn {
+            background: none;
+            border: none;
+            padding: 3px;
+            border-radius: 5px;
+            color: var(--line-strong);
+            flex-shrink: 0;
+        }
+
+        .pin-btn:hover {
+            background: var(--paper-raised);
+            color: var(--ink-soft);
+        }
+
+        .pin-btn.pinned {
+            color: var(--accent);
+        }
+
+        .side-empty {
+            padding: 4px 10px;
+            font-size: 12.5px;
+            color: var(--ink-soft);
+        }
+
+        main {
+            flex: 1;
+            min-width: 0;
+            padding: 22px 22px 80px;
+        }
+
+        .page-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .page-title {
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .page-sub {
+            color: var(--ink-soft);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* ---------- masonry feed ---------- */
+        .feed {
+            column-count: 4;
+            column-gap: 16px;
+        }
+
+        @media (max-width:1240px) {
+            .feed {
+                column-count: 3;
+            }
+        }
+
+        @media (max-width:860px) {
+            .feed {
+                column-count: 2;
+            }
+
+            .sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width:560px) {
+            .feed {
+                column-count: 1;
+            }
+        }
+
+        .card {
+            break-inside: avoid;
+            margin-bottom: 16px;
+            border-radius: var(--radius);
+            background: var(--paper-raised);
+            border: 1px solid var(--line);
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform .15s, box-shadow .15s, border-color .15s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px -14px rgba(23, 24, 26, .35);
+            border-color: var(--line-strong);
+        }
+
+        .card-media {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
+            color: rgba(255, 255, 255, .92);
+        }
+
+        .card-media img,
+        .card-media video {
+            width: 100%;
+            display: block;
+        }
+
+        .card-media .icon-big {
+            opacity: .5;
+        }
+
+        .save-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(23, 24, 26, .55);
+            border: none;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .15s, transform .1s;
+        }
+
+        .save-btn:hover {
+            background: rgba(23, 24, 26, .8);
+            transform: scale(1.06);
+        }
+
+        .save-btn.saved {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .play-badge {
+            position: absolute;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(23, 24, 26, .5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .price-tag {
+            position: absolute;
+            left: 8px;
+            bottom: 8px;
+            background: var(--ink);
+            color: var(--paper);
+            font-family: var(--font-mono);
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 5px;
+            letter-spacing: .02em;
+        }
+
+        .card-body {
+            padding: 11px 12px 12px;
+        }
+
+        .card-title {
+            font-size: 14.5px;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 12.5px;
+            color: var(--ink-soft);
+        }
+
+        .card-meta .handle {
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .like-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: auto;
+            color: var(--ink-soft);
+            background: none;
+            border: none;
+            font-size: 12.5px;
+        }
+
+        .like-btn.liked {
+            color: var(--danger);
+        }
+
+        .like-btn.liked svg {
+            fill: var(--danger);
+        }
+
+        /* ---------- explore tiles ---------- */
+        .tile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 14px;
+        }
+
+        .tile {
+            border-radius: var(--radius);
+            padding: 18px;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--line);
+        }
+
+        .tile h3 {
+            font-size: 16px;
+        }
+
+        .tile .count {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            opacity: .85;
+        }
+
+        /* ---------- item detail ---------- */
+        .detail {
+            display: flex;
+            gap: 26px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .detail-media {
+            flex: 1 1 420px;
+            min-width: 300px;
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 340px;
+            position: relative;
+        }
+
+        .detail-media img,
+        .detail-media video {
+            width: 100%;
+            display: block;
+            max-height: 560px;
+            object-fit: cover;
+        }
+
+        .detail-info {
+            flex: 1 1 340px;
+            min-width: 300px;
+        }
+
+        .detail-info .price {
+            font-family: var(--font-mono);
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--accent);
+            margin: 6px 0 14px;
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: 10px;
+            margin: 16px 0;
+        }
+
+        .author-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 16px 0;
+            padding: 12px;
+            background: var(--paper-raised);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+        }
+
+        .author-row .names {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .author-row .name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .author-row .handle {
+            font-size: 12.5px;
+            color: var(--ink-soft);
+        }
+
+        .desc {
+            font-size: 14.5px;
+            line-height: 1.6;
+            color: var(--ink);
+            margin: 14px 0;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--ink-soft);
+            margin-bottom: 16px;
+        }
+
+        .back-link:hover {
+            color: var(--ink);
+        }
+
+        /* comments / forum */
+        .divider {
+            height: 1px;
+            background: var(--line);
+            margin: 26px 0;
+        }
+
+        .section-label {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comment {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .comment .bubble {
+            flex: 1;
+            background: var(--paper-raised);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+
+        .comment .cname {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .comment .ctext {
+            font-size: 13.5px;
+            line-height: 1.5;
+            color: var(--ink);
+        }
+
+        .composer {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-top: 6px;
+        }
+
+        .composer-field {
+            flex: 1;
+            position: relative;
+        }
+
+        .composer textarea {
+            width: 100%;
+            resize: none;
+            border: 1px solid var(--line-strong);
+            border-radius: 10px;
+            padding: 10px 84px 10px 12px;
+            font-family: inherit;
+            font-size: 13.5px;
+            min-height: 44px;
+            background: var(--paper-raised);
+            color: var(--ink);
+        }
+
+        .composer-field .send-btn {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .comment-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .reply-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            color: var(--ink-soft);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 4px;
+        }
+
+        .reply-link:hover {
+            color: var(--ink);
+        }
+
+        .replies {
+            margin-top: 10px;
+            padding-left: 14px;
+            border-left: 2px solid var(--line);
+        }
+
+        .replies .comment {
+            margin-bottom: 10px;
+        }
+
+        .reply-form {
+            display: none;
+            margin-top: 8px;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .reply-form.open {
+            display: flex;
+        }
+
+        .reply-field {
+            flex: 1;
+            position: relative;
+        }
+
+        .reply-form textarea {
+            width: 100%;
+            resize: none;
+            border: 1px solid var(--line-strong);
+            border-radius: 8px;
+            padding: 7px 34px 7px 10px;
+            font-family: inherit;
+            font-size: 13px;
+            min-height: 36px;
+            background: var(--paper);
+        }
+
+        .reply-field .send-btn {
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 3px 6px;
+        }
+
+        .tag-search {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .tag-search svg {
+            position: absolute;
+            left: 10px;
+            top: 9px;
+            color: var(--ink-soft);
+        }
+
+        .tag-search input {
+            width: 100%;
+            padding: 8px 10px 8px 32px;
+            border-radius: 8px;
+            border: 1px solid var(--line-strong);
+            font-family: inherit;
+            font-size: 13.5px;
+            background: var(--paper);
+        }
+
+        .community-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        /* ---------- forms / modal ---------- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(23, 24, 26, .5);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal {
+            background: var(--paper-raised);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 480px;
+            max-height: 88vh;
+            overflow-y: auto;
+            padding: 22px;
+            border: 1px solid var(--line);
+        }
+
+        .modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .modal-head h2 {
+            font-size: 18px;
+        }
+
+        .close-x {
+            background: none;
+            border: none;
+            color: var(--ink-soft);
+            padding: 4px;
+            border-radius: 6px;
+        }
+
+        .close-x:hover {
+            background: var(--line);
+            color: var(--ink);
+        }
+
+        .field {
+            margin-bottom: 14px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--ink-soft);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+            font-family: var(--font-mono);
+        }
+
+        .field input[type=text],
+        .field input[type=number],
+        .field textarea,
+        .field select {
+            width: 100%;
+            padding: 9px 11px;
+            border-radius: 8px;
+            border: 1px solid var(--line-strong);
+            font-family: inherit;
+            font-size: 14px;
+            background: var(--paper);
+            color: var(--ink);
+        }
+
+        .field textarea {
+            resize: vertical;
+            min-height: 64px;
+        }
+
+        .chip-select {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .chip {
+            padding: 6px 11px;
+            border-radius: 20px;
+            border: 1px solid var(--line-strong);
+            font-size: 12.5px;
+            font-weight: 500;
+            background: var(--paper);
+        }
+
+        .chip.on {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .dropzone {
+            border: 2px dashed var(--line-strong);
+            border-radius: 12px;
+            padding: 26px 16px;
+            text-align: center;
+            color: var(--ink-soft);
+            font-size: 13.5px;
+            cursor: pointer;
+            background: var(--paper);
+            transition: border-color .15s, background .15s;
+        }
+
+        .dropzone:hover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .dropzone svg {
+            margin-bottom: 6px;
+        }
+
+        .preview-media {
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+            max-height: 220px;
+            display: flex;
+            justify-content: center;
+            background: var(--paper);
+        }
+
+        .preview-media img,
+        .preview-media video {
+            width: 100%;
+            max-height: 220px;
+            object-fit: cover;
+        }
+
+        .board-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 6px;
+            border-radius: 8px;
+        }
+
+        .board-row:hover {
+            background: var(--line);
+        }
+
+        .board-row input {
+            width: 16px;
+            height: 16px;
+        }
+
+        .board-thumb {
+            width: 34px;
+            height: 34px;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .board-card {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            background: var(--paper-raised);
+            cursor: pointer;
+        }
+
+        .board-card:hover {
+            border-color: var(--line-strong);
+        }
+
+        .board-cover {
+            height: 120px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+        }
+
+        .board-cover>div {
+            background-size: cover;
+        }
+
+        .board-card-body {
+            padding: 10px 12px;
+        }
+
+        .board-card-body h3 {
+            font-size: 14.5px;
+        }
+
+        .board-card-body span {
+            font-size: 12px;
+            color: var(--ink-soft);
+            font-family: var(--font-mono);
+        }
+
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--ink-soft);
+        }
+
+        .empty svg {
+            margin-bottom: 12px;
+            opacity: .6;
+        }
+
+        .empty h3 {
+            color: var(--ink);
+            margin-bottom: 6px;
+            font-size: 16px;
+        }
+
+        /* profile */
+        .profile-head {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 18px;
+            margin-top: 8px;
+            font-size: 13.5px;
+        }
+
+        .profile-stats b {
+            font-family: var(--font-mono);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            border-bottom: 1px solid var(--line);
+            margin-bottom: 18px;
+        }
+
+        .tab {
+            padding: 9px 14px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--ink-soft);
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            color: var(--ink);
+            border-color: var(--accent);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--ink);
+            color: var(--paper);
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 13.5px;
+            font-weight: 500;
+            z-index: 200;
+            box-shadow: 0 8px 20px -6px rgba(0, 0, 0, .4);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="topbar"></div>
+    <div class="shell">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main id="main"></main>
+    </div>
+    <div id="modalRoot"></div>
+    <div id="toastRoot"></div>
+
+    <script>
+        /* ============================ ICONS ============================ */
+        const ICONS = {
+            search: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>`,
+            plus: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`,
+            bookmark: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>`,
+            bookmarkFill: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>`,
+            heart: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>`,
+            comment: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l2.1-3.9A8.5 8.5 0 1 1 21 11.5z"/></svg>`,
+            users: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+            play: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
+            x: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>`,
+            upload: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 20h16"/></svg>`,
+            grid: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`,
+            compass: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M16 8l-2.5 6L8 16l2.5-6z"/></svg>`,
+            home: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>`,
+            layers: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>`,
+            chevLeft: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>`,
+            film: `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="4" width="19" height="16" rx="2"/><path d="M7 4v16M17 4v16M2.5 9h4.5M2.5 15h4.5M17 9h4.5M17 15h4.5"/></svg>`,
+            image: `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`,
+            send: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>`,
+            check: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`,
+            pin: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M8 3h8l-1 6 3 3v2H6v-2l3-3-1-6z"/></svg>`,
+            pinFill: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1"><path d="M12 17v5h-1v-5H8v-2l3-3-1-6h4l-1 6 3 3v2h-3z"/></svg>`,
+            reply: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17l-6-6 6-6"/><path d="M3 11h11a6 6 0 0 1 6 6v2"/></svg>`,
+        };
+        const icon = (name, cls = '') => ICONS[name] ? ICONS[name].replace('<svg ', `<svg class="${cls}" `) : '';
+
+        /* ============================ DATA ============================ */
+        const CATEGORIES = [
+            { name: 'Keyboards', color: '#C08A3E' },
+            { name: 'Monitors', color: '#5F7E93' },
+            { name: 'Desks', color: '#A07C46' },
+            { name: 'Chairs', color: '#7C6249' },
+            { name: 'Lighting', color: '#D9A44E' },
+            { name: 'Cable Mgmt', color: '#57634F' },
+            { name: 'Plants', color: '#5E7E4E' },
+            { name: 'Storage', color: '#8F7C5E' },
+            { name: 'Audio', color: '#6C6082' },
+            { name: 'Decor', color: '#B3684C' },
+            { name: 'Notebooks', color: '#8A7255' },
+            { name: 'Ergonomics', color: '#4B6E67' },
+        ];
+        const catColor = name => (CATEGORIES.find(c => c.name === name) || {}).color || '#8A7A66';
+
+        const USERS = [
+            { id: 'u1', name: 'Ava Chen', handle: 'ava.codes', color: '#C08A3E', bio: 'Backend dev. Beige-maxxing my corner desk since 2022.' },
+            { id: 'u2', name: 'Marcus Kim', handle: 'mkstudio', color: '#5F7E93', bio: 'Product designer. I photograph desks for a living, apparently.' },
+            { id: 'u3', name: 'Odin Reyes', handle: 'deskbyodin', color: '#7C6249', bio: 'Wood + metal. Slow furniture, fast typing.' },
+            { id: 'u4', name: 'Priya Nair', handle: 'plantpunk', color: '#5E7E4E', bio: 'Turning every workspace into a small greenhouse.' },
+            { id: 'u5', name: 'Sam Okafor', handle: 'grayscalegoods', color: '#6C6082', bio: 'Monochrome setups only. Color is a distraction.' },
+            { id: 'u6', name: 'Yuki Tanaka', handle: 'otacraft', color: '#B3684C', bio: 'Cable management is a love language.' },
+            { id: 'u7', name: 'Noor Haddad', handle: 'minimaldesk', color: '#4B6E67', bio: 'Less on the desk, more in the work.' },
+            { id: 'u8', name: 'Wren Ellis', handle: 'wfh.wren', color: '#D9A44E', bio: 'Remote-first. Lamp-obsessed. Chair snob.' },
+            { id: 'you', name: 'You', handle: 'you', color: '#17181A', bio: 'Building the perfect desk, one purchase at a time.' },
+        ];
+        const uById = id => USERS.find(u => u.id === id);
+
+        let ITEMS = [
+            {
+                id: 'i1', title: 'Anodized Aluminum Keyboard Tray, Sand', price: 64, category: 'Keyboards', tags: ['Keyboards', 'Ergonomics'], type: 'image', media: 'images/Anodized Aluminum Keyboard Tray, Sand.png', authorId: 'u3', likes: 128, likedByMe: false, comments: [
+                    {
+                        id: 'c1', authorId: 'u6', text: 'Been eyeing this for months — does it tilt negative?', replies: [
+                            { id: 'r1', authorId: 'u3', text: 'Yep, -15° to +15°. Game changer for wrist strain.' }
+                        ]
+                    },
+                    { id: 'c2', authorId: 'u3', text: 'Also comes in walnut if sand isn\u2019t your thing.', replies: [] },
+                ]
+            },
+            {
+                id: 'i2', title: 'Warm White Task Lamp — Adjustable Arm', price: 89, category: 'Lighting', tags: ['Lighting', 'Decor'], type: 'video', media: 'videos/Task_lamp_on_wooden_desk_202607051037.mp4', authorId: 'u8', likes: 342, likedByMe: false, comments: [
+                    {
+                        id: 'c3', authorId: 'u2', text: 'The color temp on this is unreal for evening work.', replies: [
+                            { id: 'r2', authorId: 'u8', text: 'Right? I run it at 2700K after 8pm.' }
+                        ]
+                    },
+                ]
+            },
+            { id: 'i3', title: 'Terrazzo Desk Mat, Large', price: 38, category: 'Decor', tags: ['Decor', 'Desks'], type: 'image', media: 'images/Terrazzo Desk Mat, Large.png', authorId: 'u2', likes: 201, likedByMe: false, comments: [] },
+            {
+                id: 'i4', title: 'Ergonomic Mesh Task Chair, Graphite', price: 410, category: 'Chairs', tags: ['Chairs', 'Ergonomics'], type: 'image', media: 'images/Ergonomic Mesh Task Chair, Graphite.png', authorId: 'u5', likes: 512, likedByMe: false, comments: [
+                    {
+                        id: 'c4', authorId: 'u1', text: 'Finally upgraded from my kitchen chair thanks to this thread.', replies: [
+                            { id: 'r3', authorId: 'u5', text: 'Welcome to the good side. Your back will thank you.' }
+                        ]
+                    },
+                    { id: 'c5', authorId: 'u5', text: 'Worth every penny after 8hr days. Lumbar support is elite.', replies: [] },
+                ]
+            },
+            { id: 'i5', title: 'Modular Monitor Riser, Oak', price: 72, category: 'Monitors', tags: ['Monitors', 'Desks'], type: 'image', media: 'images/Modular Monitor Riser, Oak.png', authorId: 'u3', likes: 97, likedByMe: false, comments: [] },
+            { id: 'i6', title: '7-Port USB-C Hub, Slate', price: 54, category: 'Cable Mgmt', tags: ['Cable Mgmt', 'Storage'], type: 'image', media: 'images/7-Port USB-C Hub, Slate.png', authorId: 'u6', likes: 76, likedByMe: false, comments: [] },
+            { id: 'i7', title: 'Boucle Desk Stool, Ivory', price: 145, category: 'Chairs', tags: ['Chairs', 'Decor'], type: 'image', media: 'images/Boucle Desk Stool, Ivory.png', authorId: 'u7', likes: 266, likedByMe: false, comments: [] },
+            {
+                id: 'i8', title: 'Trailing Pothos, 6in Ceramic Pot', price: 22, category: 'Plants', tags: ['Plants', 'Decor'], type: 'video', media: 'videos/Trailing_Pothos_in_Ceramic_Pot_202607051045.mp4', authorId: 'u4', likes: 189, likedByMe: false, comments: [
+                    { id: 'c6', authorId: 'u7', text: 'Mine has survived 3 years of my neglect, 10/10 desk plant.', replies: [] },
+                ]
+            },
+            { id: 'i9', title: 'Felt Pen Cup + Tray Set', price: 19, category: 'Storage', tags: ['Storage', 'Decor'], type: 'image', media: 'images/Felt Pen Cup + Tray Set.png', authorId: 'u7', likes: 58, likedByMe: false, comments: [] },
+            { id: 'i10', title: 'Vertical Laptop Dock, Walnut', price: 33, category: 'Storage', tags: ['Storage', 'Desks'], type: 'image', media: 'images/Vertical Laptop Dock, Walnut.png', authorId: 'u3', likes: 112, likedByMe: false, comments: [] },
+            { id: 'i11', title: 'Woven Cable Sleeves, Set of 6', price: 16, category: 'Cable Mgmt', tags: ['Cable Mgmt'], type: 'image', media: 'images/Woven Cable Sleeves, Set of 6.png', authorId: 'u6', likes: 44, likedByMe: false, comments: [] },
+            {
+                id: 'i12', title: 'Bookshelf Speakers, Walnut Grille', price: 220, category: 'Audio', tags: ['Audio', 'Decor'], type: 'image', media: 'images/Bookshelf Speakers, Walnut Grille.png', authorId: 'u2', likes: 301, likedByMe: false, comments: [
+                    { id: 'c7', authorId: 'u8', text: 'Paired with a small tube amp these sound incredible.', replies: [] },
+                ]
+            },
+            { id: 'i13', title: 'Sit-Stand Desk Frame, Black', price: 389, category: 'Desks', tags: ['Desks', 'Ergonomics'], type: 'video', media: 'videos/Sit-Stand_Desk_Frame_Black_202607051052.mp4', authorId: 'u5', likes: 428, likedByMe: false, comments: [] },
+            { id: 'i14', title: 'Linen Noticeboard, Oak Frame', price: 47, category: 'Decor', tags: ['Decor', 'Storage'], type: 'image', media: 'images/Linen Noticeboard, Oak Frame.png', authorId: 'u7', likes: 83, likedByMe: false, comments: [] },
+            { id: 'i15', title: 'Wrist Rest, Cork + Cotton', price: 24, category: 'Ergonomics', tags: ['Ergonomics', 'Keyboards'], type: 'image', media: 'images/Wrist Rest, Cork + Cotton.png', authorId: 'u1', likes: 65, likedByMe: false, comments: [] },
+            {
+                id: 'i16', title: 'Low-Profile Mechanical Keyboard, 75%', price: 159, category: 'Keyboards', tags: ['Keyboards'], type: 'image', media: 'images/Low-Profile Mechanical Keyboard, 75%25.png', authorId: 'u6', likes: 377, likedByMe: false, comments: [
+                    {
+                        id: 'c8', authorId: 'u1', text: 'What switches are these? The sound in your video is so clean.', replies: [
+                            { id: 'r4', authorId: 'u6', text: 'Boba U4s, lubed. Worth the effort honestly.' }
+                        ]
+                    },
+                ]
+            },
+            { id: 'i17', title: 'Frosted Glass Monitor Stand', price: 41, category: 'Monitors', tags: ['Monitors', 'Decor'], type: 'image', media: 'images/Frosted Glass Monitor Stand.png', authorId: 'u2', likes: 129, likedByMe: false, comments: [] },
+            { id: 'i18', title: 'Canvas Desk Organizer Roll', price: 28, category: 'Storage', tags: ['Storage'], type: 'image', media: 'images/Canvas Desk Organizer Roll.png', authorId: 'u8', likes: 39, likedByMe: false, comments: [] },
+            { id: 'i19', title: 'Concrete Weight Paperweights, Set of 3', price: 21, category: 'Decor', tags: ['Decor'], type: 'image', media: 'images/Concrete Weight Paperweights, Set of 3.png', authorId: 'u2', likes: 52, likedByMe: false, comments: [] },
+            { id: 'i20', title: 'Adjustable Footrest, Bamboo', price: 36, category: 'Ergonomics', tags: ['Ergonomics', 'Chairs'], type: 'image', media: 'images/Adjustable Footrest, Bamboo.png', authorId: 'u5', likes: 71, likedByMe: false, comments: [] },
+        ];
+
+        let BOARDS = [
+            { id: 'b1', name: 'Dream Desk 2026', ownerId: 'you', itemIds: ['i2', 'i4', 'i13'] },
+            { id: 'b2', name: 'Cable Chaos → Order', ownerId: 'you', itemIds: ['i6', 'i11'] },
+        ];
+
+        let COMMUNITY_POSTS = {
+            'Keyboards': [
+                {
+                    id: 'p1', authorId: 'u6', title: 'PSA: lube your stabilizers before you complain about rattle', text: 'Half the "bad keyboard" posts I see here are just un-lubed stabs. 20 minutes of work, night and day difference.', replies: [
+                        { authorId: 'u1', text: 'Can confirm, did this last week and my board sounds like a different product.' },
+                    ]
+                },
+            ],
+            'Lighting': [
+                { id: 'p2', authorId: 'u8', title: 'Color temperature guide for late-night work', text: 'Warm light (2700-3000K) after 8pm keeps my eyes from wrecking my sleep. Cool light during the day for focus.', replies: [] },
+            ],
+        };
+        CATEGORIES.forEach(c => { if (!COMMUNITY_POSTS[c.name]) COMMUNITY_POSTS[c.name] = []; });
+
+        let FOLLOWING = new Set(['u3', 'u6']);
+        let FOLLOWED_TAGS = new Set(['Keyboards', 'Lighting', 'Chairs']);
+        let PINNED_TAGS = new Set(['Keyboards']);
+        let SAVED_MAP = {}; // itemId -> true if saved to at least one board (derived, recomputed)
+        function recomputeSaved() { SAVED_MAP = {}; BOARDS.filter(b => b.ownerId === 'you').forEach(b => b.itemIds.forEach(id => SAVED_MAP[id] = true)); }
+        recomputeSaved();
+
+        let uid = 100;
+        const nextId = p => `${p}${uid++}`;
+
+        /* ============================ STATE / ROUTER ============================ */
+        let route = { view: 'feed', params: {} };
+        let pendingUpload = null; // {dataUrl, mediaType} while composing upload
+
+        function go(view, params = {}) { route = { view, params }; window.scrollTo({ top: 0, behavior: 'instant' }); render(); }
+
+        function timeAgo() { const opts = ['2h', '5h', '1d', '2d', '3d', '1w']; return opts[Math.floor(Math.random() * opts.length)]; }
+
+        /* ============================ RENDER: SHELL ============================ */
+        function renderTopbar() {
+            document.getElementById('topbar').innerHTML = `
+  <div class="topbar">
+    </span>Deskstack</a>
+    <form class="search-wrap" data-form="search">
+      ${icon('search')}
+      <input type="text" name="q" placeholder="Search items, tags, or people" autocomplete="off">
+    </form>
+    <div class="top-actions">
+      <button class="btn btn-primary" data-action="open-upload">${icon('plus')}Upload</button>
+      <button class="avatar" style="background:${uById('you').color}" data-action="go" data-view="profile" data-id="you" title="Your profile">Y</button>
+    </div>
+  </div>`;
+        }
+
+        function renderSidebar() {
+            const nav = [
+                { view: 'feed', label: 'Home', icon: 'home' },
+                { view: 'explore', label: 'Explore', icon: 'compass' },
+                { view: 'following', label: 'Following', icon: 'users' },
+                { view: 'collections', label: 'Collections', icon: 'layers' },
+            ];
+            const followedPeople = [...FOLLOWING].map(uById).filter(Boolean);
+            const followedTags = [...FOLLOWED_TAGS].sort((a, b) => {
+                const ap = PINNED_TAGS.has(a), bp = PINNED_TAGS.has(b);
+                if (ap !== bp) return ap ? -1 : 1;
+                return a.localeCompare(b);
+            });
+            document.getElementById('sidebar').innerHTML = `
+    <div class="side-section">
+      ${nav.map(n => `<a href="#" class="side-link ${route.view === n.view ? 'active' : ''}" data-action="go" data-view="${n.view}">${icon(n.icon)}${n.label}</a>`).join('')}
+    </div>
+    <div class="side-section">
+      <div class="side-label">People you follow</div>
+      ${followedPeople.length ? followedPeople.map(u => `
+        <a href="#" class="people-row" data-action="go" data-view="profile" data-id="${u.id}">
+          <span class="avatar sm" style="background:${u.color}">${u.name[0]}</span>
+          <span>${u.name} <span class="h">@${u.handle}</span></span>
+        </a>`).join('') : `<div class="side-empty">Follow people to see them here.</div>`}
+    </div>
+    <div class="side-section">
+      <div class="side-label">Your communities</div>
+      ${followedTags.length ? followedTags.map(t => `
+        <div class="community-row">
+          <a href="#" style="display:flex; align-items:center; gap:8px; flex:1; min-width:0; color:inherit;" data-action="go" data-view="tag" data-id="${t}">
+            <span class="dot" style="background:${catColor(t)}"></span>
+            <span class="cname">${t}</span>
+          </a>
+          <button class="pin-btn ${PINNED_TAGS.has(t) ? 'pinned' : ''}" data-action="toggle-pin" data-id="${t}" title="${PINNED_TAGS.has(t) ? 'Unpin' : 'Pin'} community">${icon(PINNED_TAGS.has(t) ? 'pinFill' : 'pin')}</button>
+        </div>`).join('') : `<div class="side-empty">Follow a community from its page to see it here.</div>`}
+      <a href="#" class="side-link" data-action="go" data-view="explore" style="margin-top:4px; color:var(--ink-soft);">${icon('compass')}Discover more</a>
+    </div>
+  `;
+        }
+
+        function renderApp() {
+            renderTopbar();
+            renderSidebar();
+            let html = '';
+            if (route.view === 'feed') html = viewFeed();
+            else if (route.view === 'explore') html = viewExplore();
+            else if (route.view === 'tag') html = viewTag(route.params.id);
+            else if (route.view === 'following') html = viewFollowing();
+            else if (route.view === 'collections') html = viewCollections();
+            else if (route.view === 'board') html = viewBoard(route.params.id);
+            else if (route.view === 'item') html = viewItem(route.params.id);
+            else if (route.view === 'profile') html = viewProfile(route.params.id);
+            else if (route.view === 'search') html = viewSearch(route.params.q);
+            document.getElementById('main').innerHTML = html;
+            bindDynamic();
+        }
+        function render() { renderApp(); }
+
+        /* ============================ CARD / MEDIA HELPERS ============================ */
+        function mediaBlock(item, tall) {
+            const color = catColor(item.category);
+            const saved = !!SAVED_MAP[item.id];
+            const h = tall ? 'min-height:170px;' : `min-height:${120 + (item.title.length % 5) * 18}px;`;
+            let inner;
+            console.log(item.media);
+
+            if (item.media) {
+                inner = item.type === 'video'
+                    ? `<video src="${item.media}" muted loop autoplay playsinline style="width:100%; display:block;"></video>`
+                    : `<img src="${item.media}" alt="">`;
+            } else {
+                inner = `<div class="icon-big">${icon(item.type === 'video' ? 'film' : 'image')}</div>`;
+                if (item.type === 'video') {
+                    inner += `<div class="play-badge">${icon('play')}</div>`;
+                }
+            }
+            return `
+    <div class="card-media" style="background:${color}; ${h}">
+      ${inner}
+      <button class="save-btn ${saved ? 'saved' : ''}" data-action="save-item" data-id="${item.id}" title="Save to collection" aria-label="Save">
+        ${icon(saved ? 'bookmarkFill' : 'bookmark')}
+      </button>
+      <span class="price-tag mono">$${item.price}</span>
+    </div>`;
+        }
+
+        function cardHTML(item) {
+            const a = uById(item.authorId);
+            return `
+  <article class="card" data-action="go" data-view="item" data-id="${item.id}">
+    ${mediaBlock(item)}
+    <div class="card-body">
+      <div class="card-title">${item.title}</div>
+      <div class="card-meta">
+        <span class="avatar sm" style="background:${a.color}">${a.name[0]}</span>
+        <span class="handle">@${a.handle}</span>
+        <button class="like-btn ${item.likedByMe ? 'liked' : ''}" data-action="like" data-id="${item.id}">${icon('heart')}${item.likes}</button>
+      </div>
+    </div>
+  </article>`;
+        }
+
+        function feedGrid(items) {
+            if (!items.length) {
+                return emptyState('No items yet', 'Nothing here yet — be the first to upload something.', 'image');
+            }
+            return `<div class="feed">${items.map(cardHTML).join('')}</div>`;
+        }
+
+        function emptyState(title, sub, iconName = 'compass') {
+            return `<div class="empty">${icon(iconName)}<h3>${title}</h3><p>${sub}</p></div>`;
+        }
+
+        /* ============================ VIEWS ============================ */
+        function viewFeed() {
+            const items = [...ITEMS].sort((a, b) => b.id.localeCompare(a.id));
+            return `
+    <div class="page-head">
+      <div><div class="page-title">For you</div><div class="page-sub">Fresh finds from the community — save what you love, discuss what you're curious about.</div></div>
+    </div>
+    ${feedGrid(items)}
+  `;
+        }
+
+        function viewExplore() {
+            return `
+    <div class="page-head"><div><div class="page-title">Explore communities</div><div class="page-sub">Browse by category. Every tag is a forum too — jump in and talk shop.</div></div></div>
+    <div class="tile-grid">
+      ${CATEGORIES.map(c => {
+                const count = ITEMS.filter(i => i.tags.includes(c.name)).length;
+                return `<div class="tile" style="background:${c.color}" data-action="go" data-view="tag" data-id="${c.name}">
+          <h3>${c.name}</h3>
+          <span class="count mono">${count} item${count === 1 ? '' : 's'}</span>
+        </div>`;
+            }).join('')}
+    </div>
+  `;
+        }
+
+        function viewTag(tag) {
+            const items = ITEMS.filter(i => i.tags.includes(tag));
+            const posts = COMMUNITY_POSTS[tag] || [];
+            const color = catColor(tag);
+            const following = FOLLOWED_TAGS.has(tag);
+            const pinned = PINNED_TAGS.has(tag);
+            return `
+    <div style="background:${color}; border-radius:14px; padding:22px 24px; color:#fff; margin-bottom:20px;">
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <div>
+          <div class="page-title" style="color:#fff;">${tag}</div>
+          <div class="page-sub" style="color:rgba(255,255,255,.85);">${items.length} items curated · ${posts.length} discussion${posts.length === 1 ? '' : 's'}</div>
+        </div>
+        <div class="community-actions">
+          <button class="btn ${following ? 'btn-outline' : 'btn-primary'} btn-sm" style="${following ? '' : 'background:#fff; color:' + color + ';'}" data-action="toggle-community" data-id="${tag}">${following ? 'Following' : 'Follow'}</button>
+          ${following ? `<button class="btn btn-outline btn-sm" data-action="toggle-pin" data-id="${tag}" style="background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.5); color:#fff;">${icon(pinned ? 'pinFill' : 'pin')}${pinned ? 'Pinned' : 'Pin'}</button>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="section-label">${icon('grid')}Items</div>
+    ${feedGrid(items)}
+    <div class="divider"></div>
+    <div class="section-label">${icon('comment')}Community discussion</div>
+    <form class="composer" data-form="new-post" data-tag="${tag}" style="margin-bottom:20px;">
+      <span class="avatar sm" style="background:${uById('you').color}">Y</span>
+      <div class="composer-field">
+        <textarea name="text" placeholder="Start a discussion about ${tag}..." rows="2"></textarea>
+        <button class="btn btn-outline btn-sm send-btn" type="submit">${icon('send')}Post</button>
+      </div>
+    </form>
+    ${posts.length ? posts.map(postHTML).join('') : emptyState('No discussions yet', `Ask a question or share a tip about ${tag.toLowerCase()}.`, 'comment')}
+  `;
+        }
+
+        function postHTML(p) {
+            const a = uById(p.authorId);
+            return `
+  <div class="comment" style="margin-bottom:22px;">
+    <span class="avatar sm" style="background:${a.color}">${a.name[0]}</span>
+    <div class="bubble">
+      <div class="cname">${a.name} <span style="color:var(--ink-soft); font-weight:400;">@${a.handle}</span></div>
+      ${p.title ? `<div style="font-weight:600; margin:4px 0 2px;">${p.title}</div>` : ''}
+      <div class="ctext">${p.text}</div>
+      ${p.replies.length ? `<div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--line);">
+        ${p.replies.map(r => { const ra = uById(r.authorId); return `<div style="display:flex; gap:8px; margin-bottom:8px;"><span class="avatar sm" style="background:${ra.color}">${ra.name[0]}</span><div class="ctext"><b>${ra.name}</b> — ${r.text}</div></div>`; }).join('')}
+      </div>` : ''}
+    </div>
+  </div>`;
+        }
+
+        function viewFollowing() {
+            const items = ITEMS.filter(i => FOLLOWING.has(i.authorId)).sort((a, b) => b.id.localeCompare(a.id));
+            return `
+    <div class="page-head"><div><div class="page-title">Following</div><div class="page-sub">Items from the ${FOLLOWING.size} maker${FOLLOWING.size === 1 ? '' : 's'} you follow.</div></div></div>
+    ${FOLLOWING.size === 0 ? emptyState("You aren't following anyone yet", 'Visit a profile and hit Follow to see their uploads here.', 'users') : feedGrid(items)}
+  `;
+        }
+
+        function viewCollections() {
+            const mine = BOARDS.filter(b => b.ownerId === 'you');
+            return `
+    <div class="page-head">
+      <div><div class="page-title">Your collections</div><div class="page-sub">Boards you've curated, Pinterest-style.</div></div>
+      <button class="btn btn-outline" data-action="new-board">${icon('plus')}New collection</button>
+    </div>
+    ${mine.length ? `<div class="board-grid">${mine.map(boardCard).join('')}</div>` : emptyState('No collections yet', 'Create a board and start saving items you love.', 'layers')}
+  `;
+        }
+
+        function boardCard(b) {
+            const items = b.itemIds.map(id => ITEMS.find(i => i.id === id)).filter(Boolean).slice(0, 4);
+            const cover = items.length ? items.map(i => `<div style="background:${catColor(i.category)}"></div>`).join('') : `<div style="background:var(--line); grid-column:1/-1;"></div>`;
+            return `
+  <div class="board-card" data-action="go" data-view="board" data-id="${b.id}">
+    <div class="board-cover">${cover}</div>
+    <div class="board-card-body">
+      <h3>${b.name}</h3>
+      <span>${b.itemIds.length} item${b.itemIds.length === 1 ? '' : 's'}</span>
+    </div>
+  </div>`;
+        }
+
+        function viewBoard(id) {
+            const b = BOARDS.find(x => x.id === id);
+            if (!b) return emptyState('Collection not found', '');
+            const items = b.itemIds.map(x => ITEMS.find(i => i.id === x)).filter(Boolean);
+            return `
+    <a href="#" class="back-link" data-action="go" data-view="collections">${icon('chevLeft')}All collections</a>
+    <div class="page-head"><div><div class="page-title">${b.name}</div><div class="page-sub">Curated by @${uById(b.ownerId).handle} · ${items.length} items</div></div></div>
+    ${feedGrid(items)}
+  `;
+        }
+
+        function viewItem(id) {
+            const item = ITEMS.find(i => i.id === id);
+            if (!item) return emptyState('Item not found', '');
+            const a = uById(item.authorId);
+            const color = catColor(item.category);
+            const saved = !!SAVED_MAP[item.id];
+            const mediaInner = item.media
+                ? (item.type === 'video' ? `<video src="${item.media}" controls style="width:100%;"></video>` : `<img src="${item.media}" alt="">`)
+                : `<div style="opacity:.55;">${icon(item.type === 'video' ? 'film' : 'image')}</div>`;
+            return `
+    <a href="#" class="back-link" data-action="go" data-view="feed">${icon('chevLeft')}Back to feed</a>
+    <div class="detail">
+      <div class="detail-media" style="background:${color};">${mediaInner}</div>
+      <div class="detail-info">
+        <div class="tag-cloud">${item.tags.map(t => `<a href="#" class="tag-pill" data-action="go" data-view="tag" data-id="${t}"><span class="dot" style="background:${catColor(t)}"></span>${t}</a>`).join('')}</div>
+        <h1 style="font-size:24px; margin-top:10px;">${item.title}</h1>
+        <div class="price mono">$${item.price}</div>
+        <div class="detail-actions">
+          <button class="btn btn-primary" data-action="shop" data-id="${item.id}">Shop this item</button>
+          <button class="btn btn-outline" data-action="save-item" data-id="${item.id}">${icon(saved ? 'bookmarkFill' : 'bookmark')} ${saved ? 'Saved' : 'Save'}</button>
+          <button class="btn btn-outline like-btn ${item.likedByMe ? 'liked' : ''}" style="margin-left:0;" data-action="like" data-id="${item.id}">${icon('heart')} ${item.likes}</button>
+        </div>
+        <div class="author-row">
+          <button class="avatar" style="background:${a.color}" data-action="go" data-view="profile" data-id="${a.id}">${a.name[0]}</button>
+          <div class="names">
+            <div class="name">${a.name}</div>
+            <div class="handle">@${a.handle}</div>
+          </div>
+          ${a.id !== 'you' ? followBtn(a.id) : ''}
+        </div>
+        <p class="desc">Curated by @${a.handle} for the ${item.category} community. Tap a tag to see what else people are pairing this with, or jump into the discussion below.</p>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="section-label">${icon('comment')}Discussion (${item.comments.length})</div>
+    <form class="composer" data-form="new-comment" data-item="${item.id}">
+      <span class="avatar sm" style="background:${uById('you').color}">Y</span>
+      <div class="composer-field">
+        <textarea name="text" placeholder="Ask a question or share your thoughts..." rows="2"></textarea>
+        <button class="btn btn-outline btn-sm send-btn" type="submit">${icon('send')}Post</button>
+      </div>
+    </form>
+    <div style="margin-top:18px;">
+      ${item.comments.length ? item.comments.map(c => commentHTML(c, item.id)).join('') : emptyState('No comments yet', 'Start the conversation about this item.', 'comment')}
+    </div>
+  `;
+        }
+
+        function commentHTML(c, itemId) {
+            const a = uById(c.authorId);
+            const replies = c.replies || [];
+            return `<div class="comment">
+    <span class="avatar sm" style="background:${a.color}">${a.name[0]}</span>
+    <div class="bubble">
+      <div class="cname">${a.name} <span style="color:var(--ink-soft); font-weight:400;">@${a.handle}</span></div>
+      <div class="ctext">${c.text}</div>
+      <div class="comment-actions">
+        <button class="reply-link" data-action="toggle-reply" data-id="${c.id}">${icon('reply')}Reply</button>
+      </div>
+      ${replies.length ? `<div class="replies">${replies.map(r => {
+                const ra = uById(r.authorId);
+                return `<div class="comment"><span class="avatar sm" style="background:${ra.color}">${ra.name[0]}</span><div class="bubble"><div class="cname">${ra.name} <span style="color:var(--ink-soft); font-weight:400;">@${ra.handle}</span></div><div class="ctext">${r.text}</div></div></div>`;
+            }).join('')}</div>` : ''}
+      <form class="reply-form" id="reply-form-${c.id}" data-form="new-reply" data-item="${itemId}" data-comment="${c.id}">
+        <span class="avatar sm" style="background:${uById('you').color}">Y</span>
+        <div class="reply-field">
+          <textarea name="text" placeholder="Reply to ${a.name}..." rows="1"></textarea>
+          <button class="btn btn-outline btn-sm send-btn" type="submit">${icon('send')}</button>
+        </div>
+      </form>
+    </div>
+  </div>`;
+        }
+
+        function followBtn(userId) {
+            const following = FOLLOWING.has(userId);
+            return `<button class="btn ${following ? 'btn-outline' : 'btn-primary'} btn-sm" data-action="toggle-follow" data-id="${userId}">${following ? 'Following' : 'Follow'}</button>`;
+        }
+
+        function viewProfile(id) {
+            const u = uById(id);
+            if (!u) return emptyState('User not found', '');
+            const posts = ITEMS.filter(i => i.authorId === id).sort((a, b) => b.id.localeCompare(a.id));
+            const boards = BOARDS.filter(b => b.ownerId === id);
+            const liked = ITEMS.filter(i => i.likedByMe).sort((a, b) => b.id.localeCompare(a.id));
+            const tab = route.params.tab || 'posts';
+            const isYou = id === 'you';
+            return `
+    <div class="profile-head">
+      <span class="avatar lg" style="background:${u.color}">${u.name[0]}</span>
+      <div style="flex:1; min-width:200px;">
+        <h1 style="font-size:22px;">${u.name}</h1>
+        <div style="color:var(--ink-soft); font-size:13.5px;">@${u.handle}</div>
+        <p style="margin-top:6px; font-size:13.5px; max-width:480px;">${u.bio}</p>
+        <div class="profile-stats">
+          <span><b>${posts.length}</b> uploads</span>
+          <span><b>${boards.length}</b> collections</span>
+          <span><b>${120 + posts.length * 7}</b> followers</span>
+        </div>
+      </div>
+      ${isYou ? '' : followBtn(id)}
+    </div>
+    <div class="tabs">
+      <a href="#" class="tab ${tab === 'posts' ? 'active' : ''}" data-action="go" data-view="profile" data-id="${id}" data-tab="posts">Uploads</a>
+      <a href="#" class="tab ${tab === 'collections' ? 'active' : ''}" data-action="go" data-view="profile" data-id="${id}" data-tab="collections">Collections</a>
+      <a href="#" class="tab ${tab === 'liked' ? 'active' : ''}" data-action="go" data-view="profile" data-id="${id}" data-tab="liked">Liked</a>
+    </div>
+    ${tab === 'posts'
+                    ? (posts.length ? feedGrid(posts) : emptyState('No uploads yet', isYou ? 'Upload your first item to get started.' : `${u.name} hasn't posted anything yet.`, 'image'))
+                    : tab === 'collections'
+                        ? (boards.length ? `<div class="board-grid">${boards.map(boardCard).join('')}</div>` : emptyState('No collections yet', '', 'layers'))
+                        : (isYou
+                            ? (liked.length ? feedGrid(liked) : emptyState('No liked items yet', 'Items you like will show up here.', 'heart'))
+                            : emptyState('Liked items are private', `Only ${u.name} can see what they've liked.`, 'heart'))}
+  `;
+        }
+
+        function viewSearch(q) {
+            q = (q || '').toLowerCase().trim();
+            const items = ITEMS.filter(i => i.title.toLowerCase().includes(q) || i.tags.some(t => t.toLowerCase().includes(q)) || uById(i.authorId).handle.toLowerCase().includes(q));
+            return `
+    <div class="page-head"><div><div class="page-title">Results for "${route.params.q}"</div><div class="page-sub">${items.length} item${items.length === 1 ? '' : 's'} found</div></div></div>
+    ${feedGrid(items)}
+  `;
+        }
+
+        /* ============================ MODALS ============================ */
+        function openModal(html) {
+            document.getElementById('modalRoot').innerHTML = `<div class="modal-overlay" data-action="close-modal">${html}</div>`;
+            document.getElementById('modalRoot').querySelector('.modal').addEventListener('click', e => {
+                if (!e.target.closest('[data-action="close-modal"]')) e.stopPropagation();
+            });
+        }
+        function closeModal() { document.getElementById('modalRoot').innerHTML = ''; pendingUpload = null; }
+
+        function uploadModal() {
+            const chips = CATEGORIES.map(c => `<button type="button" class="chip" data-chip="${c.name}">${c.name}</button>`).join('');
+            openModal(`
+    <div class="modal">
+      <div class="modal-head"><h2>Upload an item</h2><button class="close-x" data-action="close-modal">${icon('x')}</button></div>
+      <form data-form="upload-item">
+        <div class="field">
+          <label>Photo or short video</label>
+          <div class="dropzone" id="dropzone">
+            ${icon('upload')}
+            <div>Click to choose a file, or drag it here</div>
+            <div style="font-size:11.5px; margin-top:2px;">JPG, PNG, MP4 — under 25MB</div>
+          </div>
+          <input type="file" id="fileInput" accept="image/*,video/*" style="display:none;">
+          <div id="previewSlot"></div>
+        </div>
+        <div class="field">
+          <label>Title</label>
+          <input type="text" name="title" placeholder="e.g. Walnut cable tray, matte black hooks" required>
+        </div>
+        <div class="field">
+          <label>Price (USD)</label>
+          <input type="number" name="price" min="0" step="1" placeholder="0" required>
+        </div>
+        <div class="field">
+          <label>Tags</label>
+          <div class="tag-search">
+            ${icon('search')}
+            <input type="text" id="tagSearchInput" placeholder="Search for a tag..." autocomplete="off">
+          </div>
+          <div class="chip-select" id="chipSelect">${chips}</div>
+          <div id="noTagMatch" class="side-empty" style="display:none; padding-left:0;">No tags match your search.</div>
+        </div>
+        <div class="field">
+          <label>Description (optional)</label>
+          <textarea name="desc" placeholder="What makes this piece worth adding to a desk setup?"></textarea>
+        </div>
+        <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center; padding:11px;">Post to Deskstack</button>
+      </form>
+    </div>
+  `);
+            const dz = document.getElementById('dropzone');
+            const fi = document.getElementById('fileInput');
+            dz.addEventListener('click', () => fi.click());
+            dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor = 'var(--accent)'; });
+            dz.addEventListener('dragleave', () => { dz.style.borderColor = ''; });
+            dz.addEventListener('drop', e => {
+                e.preventDefault(); dz.style.borderColor = '';
+                if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+            });
+            fi.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+            document.getElementById('chipSelect').addEventListener('click', e => {
+                const chip = e.target.closest('.chip');
+                if (chip) chip.classList.toggle('on');
+            });
+            const tagSearchInput = document.getElementById('tagSearchInput');
+            const chipEls = [...document.querySelectorAll('#chipSelect .chip')];
+            tagSearchInput.addEventListener('input', () => {
+                const q = tagSearchInput.value.toLowerCase().trim();
+                let anyVisible = false;
+                chipEls.forEach(c => {
+                    const match = c.dataset.chip.toLowerCase().includes(q);
+                    c.style.display = match ? '' : 'none';
+                    if (match) anyVisible = true;
+                });
+                document.getElementById('noTagMatch').style.display = anyVisible ? 'none' : 'block';
+            });
+        }
+
+        function handleFile(file) {
+            const isVideo = file.type.startsWith('video');
+            const reader = new FileReader();
+            reader.onload = ev => {
+                pendingUpload = { dataUrl: ev.target.result, type: isVideo ? 'video' : 'image' };
+                document.getElementById('previewSlot').innerHTML = `
+      <div class="preview-media">
+        ${isVideo ? `<video src="${pendingUpload.dataUrl}" muted autoplay loop playsinline></video>` : `<img src="${pendingUpload.dataUrl}">`}
+      </div>`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveModal(itemId) {
+            const mine = BOARDS.filter(b => b.ownerId === 'you');
+            openModal(`
+    <div class="modal">
+      <div class="modal-head"><h2>Save to collection</h2><button class="close-x" data-action="close-modal">${icon('x')}</button></div>
+      <div>
+        ${mine.map(b => `
+          <label class="board-row">
+            <input type="checkbox" data-board-toggle="${b.id}" ${b.itemIds.includes(itemId) ? 'checked' : ''}>
+            <div class="board-thumb" style="background:${catColor((ITEMS.find(i => i.id === b.itemIds[0]) || {}).category) || 'var(--line)'}"></div>
+            <div style="flex:1;"><b style="font-size:13.5px;">${b.name}</b><div style="font-size:11.5px; color:var(--ink-soft);">${b.itemIds.length} items</div></div>
+          </label>`).join('') || `<p style="color:var(--ink-soft); font-size:13.5px; padding:8px 0 16px;">You don't have any collections yet.</p>`}
+      </div>
+      <form data-form="quick-board" style="display:flex; gap:8px; margin-top:12px;">
+        <input type="text" name="name" placeholder="New collection name" style="flex:1; padding:8px 11px; border-radius:8px; border:1px solid var(--line-strong); font-family:inherit;">
+        <button class="btn btn-outline btn-sm" type="submit">${icon('plus')}Create</button>
+      </form>
+    </div>
+  `);
+            document.getElementById('modalRoot').querySelectorAll('[data-board-toggle]').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    const b = BOARDS.find(x => x.id === cb.dataset.boardToggle);
+                    if (cb.checked) { if (!b.itemIds.includes(itemId)) b.itemIds.push(itemId); }
+                    else { b.itemIds = b.itemIds.filter(x => x !== itemId); }
+                    recomputeSaved();
+                    renderApp();
+                });
+            });
+        }
+
+        function newBoardModal() {
+            openModal(`
+    <div class="modal">
+      <div class="modal-head"><h2>New collection</h2><button class="close-x" data-action="close-modal">${icon('x')}</button></div>
+      <form data-form="create-board">
+        <div class="field"><label>Name</label><input type="text" name="name" placeholder="e.g. Home office refresh" required autofocus></div>
+        <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center; padding:11px;">Create collection</button>
+      </form>
+    </div>
+  `);
+        }
+
+        /* ============================ TOAST ============================ */
+        function toast(msg) {
+            const el = document.getElementById('toastRoot');
+            el.innerHTML = `<div class="toast">${msg}</div>`;
+            setTimeout(() => { if (el.firstChild) el.innerHTML = ''; }, 2200);
+        }
+
+        /* ============================ EVENT BINDING ============================ */
+        function bindDynamic() {
+            // nothing per-render needed beyond global delegation (set up once below)
+        }
+
+        document.addEventListener('click', e => {
+            const closeM = e.target.closest('[data-action="close-modal"]');
+            if (closeM) { closeModal(); return; }
+
+            const goEl = e.target.closest('[data-action="go"]');
+            if (goEl) {
+                e.preventDefault();
+                go(goEl.dataset.view, { id: goEl.dataset.id, tab: goEl.dataset.tab });
+                return;
+            }
+
+            const upEl = e.target.closest('[data-action="open-upload"]');
+            if (upEl) { uploadModal(); return; }
+
+            const saveEl = e.target.closest('[data-action="save-item"]');
+            if (saveEl) {
+                e.preventDefault(); e.stopPropagation();
+                if (BOARDS.filter(b => b.ownerId === 'you').length === 0) {
+                    const b = { id: nextId('b'), name: 'Saved', ownerId: 'you', itemIds: [] };
+                    BOARDS.push(b);
+                }
+                saveModal(saveEl.dataset.id);
+                return;
+            }
+
+            const likeEl = e.target.closest('[data-action="like"]');
+            if (likeEl) {
+                e.preventDefault(); e.stopPropagation();
+                const item = ITEMS.find(i => i.id === likeEl.dataset.id);
+                if (item) { item.likedByMe = !item.likedByMe; item.likes += item.likedByMe ? 1 : -1; renderApp(); }
+                return;
+            }
+
+            const followEl = e.target.closest('[data-action="toggle-follow"]');
+            if (followEl) {
+                e.preventDefault(); e.stopPropagation();
+                const id = followEl.dataset.id;
+                if (FOLLOWING.has(id)) { FOLLOWING.delete(id); } else { FOLLOWING.add(id); toast(`Following @${uById(id).handle}`); }
+                renderApp();
+                return;
+            }
+
+            const commEl = e.target.closest('[data-action="toggle-community"]');
+            if (commEl) {
+                e.preventDefault();
+                const tag = commEl.dataset.id;
+                if (FOLLOWED_TAGS.has(tag)) { FOLLOWED_TAGS.delete(tag); PINNED_TAGS.delete(tag); }
+                else { FOLLOWED_TAGS.add(tag); toast(`Joined ${tag}`); }
+                renderApp();
+                return;
+            }
+
+            const pinEl = e.target.closest('[data-action="toggle-pin"]');
+            if (pinEl) {
+                e.preventDefault();
+                const tag = pinEl.dataset.id;
+                if (PINNED_TAGS.has(tag)) { PINNED_TAGS.delete(tag); } else { PINNED_TAGS.add(tag); toast(`Pinned ${tag}`); }
+                renderApp();
+                return;
+            }
+
+            const replyToggle = e.target.closest('[data-action="toggle-reply"]');
+            if (replyToggle) {
+                e.preventDefault(); e.stopPropagation();
+                const form = document.getElementById('reply-form-' + replyToggle.dataset.id);
+                if (form) { form.classList.toggle('open'); const ta = form.querySelector('textarea'); if (form.classList.contains('open')) ta.focus(); }
+                return;
+            }
+
+            const shopEl = e.target.closest('[data-action="shop"]');
+            if (shopEl) { e.preventDefault(); toast('This is a demo — no external checkout is connected.'); return; }
+
+            const newBoardEl = e.target.closest('[data-action="new-board"]');
+            if (newBoardEl) { newBoardModal(); return; }
+        });
+
+        document.addEventListener('submit', e => {
+            const form = e.target.closest('[data-form]');
+            if (!form) return;
+            e.preventDefault();
+            const type = form.dataset.form;
+            const data = new FormData(form);
+
+            if (type === 'search') {
+                const q = data.get('q');
+                if (q && q.trim()) go('search', { q: q.trim() });
+                return;
+            }
+
+            if (type === 'new-comment') {
+                const text = data.get('text');
+                if (!text || !text.trim()) return;
+                const item = ITEMS.find(i => i.id === form.dataset.item);
+                item.comments.push({ id: nextId('c'), authorId: 'you', text: text.trim() });
+                renderApp();
+                return;
+            }
+
+            if (type === 'new-reply') {
+                const text = data.get('text');
+                if (!text || !text.trim()) return;
+                const item = ITEMS.find(i => i.id === form.dataset.item);
+                const comment = item.comments.find(c => c.id === form.dataset.comment);
+                if (!comment.replies) comment.replies = [];
+                comment.replies.push({ id: nextId('r'), authorId: 'you', text: text.trim() });
+                renderApp();
+                return;
+            }
+
+            if (type === 'new-post') {
+                const text = data.get('text');
+                if (!text || !text.trim()) return;
+                const tag = form.dataset.tag;
+                COMMUNITY_POSTS[tag].unshift({ id: nextId('p'), authorId: 'you', title: '', text: text.trim(), replies: [] });
+                renderApp();
+                return;
+            }
+
+            if (type === 'create-board') {
+                const name = data.get('name');
+                if (!name || !name.trim()) return;
+                BOARDS.push({ id: nextId('b'), name: name.trim(), ownerId: 'you', itemIds: [] });
+                closeModal();
+                toast('Collection created');
+                renderApp();
+                return;
+            }
+
+            if (type === 'quick-board') {
+                const name = data.get('name');
+                if (!name || !name.trim()) return;
+                BOARDS.push({ id: nextId('b'), name: name.trim(), ownerId: 'you', itemIds: [] });
+                form.reset();
+                renderApp();
+                // reopen save modal state refreshed
+                return;
+            }
+
+            if (type === 'upload-item') {
+                const title = data.get('title');
+                const price = Number(data.get('price')) || 0;
+                const desc = data.get('desc');
+                const chosenTags = [...document.querySelectorAll('#chipSelect .chip.on')].map(c => c.dataset.chip);
+                if (!title || !title.trim()) { toast('Give your item a title first'); return; }
+                if (chosenTags.length === 0) { toast('Pick at least one tag'); return; }
+                const item = {
+                    id: nextId('i'),
+                    title: title.trim(),
+                    price,
+                    category: chosenTags[0],
+                    tags: chosenTags,
+                    type: pendingUpload ? pendingUpload.type : 'image',
+                    media: pendingUpload ? pendingUpload.dataUrl : null,
+                    authorId: 'you',
+                    likes: 0,
+                    likedByMe: false,
+                    comments: [],
+                    desc: desc || ''
+                };
+                ITEMS.unshift(item);
+                closeModal();
+                toast('Posted to Deskstack');
+                go('item', { id: item.id });
+                return;
+            }
+        });
+
+        /* ============================ INIT ============================ */
+        renderApp();
+    </script>
+</body>
+
+</html>
